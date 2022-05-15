@@ -11,7 +11,7 @@ module MicrosoftActionmailer
             "contentType": "HTML",
             "content": content
           },
-          "toRecipients": recipients.map { |address|
+          "toRecipients": recipients.map{|address|
             {
               "emailAddress": {
                 "address": address
