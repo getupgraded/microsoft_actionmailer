@@ -1,37 +1,27 @@
 module MicrosoftActionmailer
   module Api
-    # Creates a message and saves in 'Draft' mailFolder
-    def ms_create_message(token, subject, content, address)
+
+    def ms_send_message(token:, subject:, content:, recipients:, sender:)
+      send_message_url = "/v1.0/users/#{sender}/sendMail"
+      req_method = 'post'
       query = {
-        "subject": subject,
-        "importance": "Normal",
-        "body":{
-          "contentType": "HTML",
-          "content": content
-        },
-        "toRecipients": [
-          {
-            "emailAddress": {
-              "address": address
+        "message": {
+          "subject": subject,
+          "body":{
+            "contentType": "HTML",
+            "content": content
+          },
+          "toRecipients": recipients.map { |address|
+            {
+              "emailAddress": {
+                "address": address
+              }
             }
           }
-        ]
+        }
       }
-      create_message_url = '/v1.0/renewit@elkjop.no/messages'
-      create_message_url = '/v1.0/users/renewit@elkjop.no/messages'
-      req_method = 'post'
-      response = make_api_call create_message_url, token, query,req_method
-      raise response.parsed_response.to_s || "Request returned #{response.code}" unless response.code == 201
-      response
-    end
 
-    # Sends the message created using message id
-    def ms_send_message(token, message_id)
-      send_message_url = "/v1.0/renewit@elkjop.no/messages/#{message_id}/send"
-      send_message_url = "/v1.0/users/renewit@elkjop.no/messages#{message_id}/send"
-      req_method = 'post'
-      query = {}
-      response = make_api_call send_message_url, token, query,req_method
+      response = make_api_call send_message_url, token, query, req_method
       raise response.parsed_response.to_s || "Request returned #{response.code}" unless response.code == 202
       response
     end
