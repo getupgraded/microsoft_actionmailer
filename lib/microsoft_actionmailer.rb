@@ -29,7 +29,10 @@ module MicrosoftActionmailer
         before_send.call(mail, message)
       end
 
-      res = ms_send_message(token: access_token, subject: mail.subject, content: mail.body.encoded, recipients: mail.to, sender: sender)
+      body = mail.body.encoded
+      body = mail.html_part.body.encoded if mail.html_part.present?
+
+      res = ms_send_message(token: access_token, subject: mail.subject, content: body, recipients: mail.to, sender: sender, attachments: mail.attachments)
 
       after_send = delivery_options[:after_send]
       if after_send && after_send.respond_to?(:call)

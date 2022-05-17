@@ -1,7 +1,19 @@
 module MicrosoftActionmailer
   module Api
 
-    def ms_send_message(token:, subject:, content:, recipients:, sender:)
+    def ms_send_message(token:, subject:, content:, recipients:, sender:, attachments: [])
+
+      attachment_list = []
+      attachments.each do |attachment|
+        data = { "@odata.type": "#microsoft.graph.fileAttachment",
+                 "name": attachment.filename,
+                 "contentType": attachment.content_type,
+                 "contentBytes": Base64.encode64(attachment.body.raw_source)
+               }
+        attachment_list << data
+      end
+
+
       send_message_url = "/v1.0/users/#{sender}/sendMail"
       req_method = 'post'
       query = {
@@ -11,6 +23,7 @@ module MicrosoftActionmailer
             "contentType": "HTML",
             "content": content
           },
+          "attachments": attachment_list,
           "toRecipients": recipients.map{|address|
             {
               "emailAddress": {
