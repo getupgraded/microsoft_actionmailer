@@ -7,6 +7,7 @@ module MicrosoftActionmailer
       attachments.each do |attachment|
         data = { "@odata.type": "#microsoft.graph.fileAttachment",
                  "name": attachment.filename,
+                 "isInline": true,
                  "contentType": attachment.content_type,
                  "contentBytes": Base64.encode64(attachment.body.raw_source)
                }
