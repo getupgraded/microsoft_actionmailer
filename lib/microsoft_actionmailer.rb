@@ -13,28 +13,26 @@ module MicrosoftActionmailer
   class DeliveryMethod
     include MicrosoftActionmailer::Api
 
-    attr_reader :access_token
-    attr_reader :delivery_options
+    attr_reader :access_token,
+                :delivery_options,
+                :sender
 
     def initialize params
       @access_token = params[:authorization]
+      @sender = params[:sender]
       @delivery_options = params[:delivery_options] || {}
     end
 
     def deliver! mail
-      message = ms_create_message(
-        access_token,
-        mail.subject,
-        mail.body.encoded,
-        mail.to.first
-      )
-
       before_send = delivery_options[:before_send]
       if before_send && before_send.respond_to?(:call)
         before_send.call(mail, message)
       end
 
-      res = ms_send_message(access_token, message['id'])
+      body = mail.body.encoded
+      body = mail.html_part.body.encoded if mail.html_part.present?
+
+      res = ms_send_message(token: access_token, subject: mail.subject, content: body, recipients: mail.to, sender: sender, attachments: mail.attachments)
 
       after_send = delivery_options[:after_send]
       if after_send && after_send.respond_to?(:call)
